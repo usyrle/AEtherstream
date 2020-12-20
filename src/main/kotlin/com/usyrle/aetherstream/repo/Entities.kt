@@ -3,7 +3,7 @@ package com.usyrle.aetherstream.repo
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.Id
-
+import javax.persistence.OneToMany
 
 @Entity
 class PlaneCard(
@@ -11,3 +11,7 @@ class PlaneCard(
         var type: String,
         var scryfallUri: String,
         @Id @GeneratedValue var multiverseId: Long? = null)
+
+class PlaneSet(
+        @OneToMany var cards: List<PlaneCard>,
+        @Id @GeneratedValue var id: Long? = null)
