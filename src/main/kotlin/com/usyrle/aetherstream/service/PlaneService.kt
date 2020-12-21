@@ -1,5 +1,6 @@
 package com.usyrle.aetherstream.service
 
+import com.usyrle.aetherstream.repo.PlaneCard
 import com.usyrle.aetherstream.repo.PlaneCardRepository
 import com.usyrle.aetherstream.repo.PlaneSet
 import org.springframework.stereotype.Service
@@ -12,9 +13,14 @@ class PlaneService(private val repository: PlaneCardRepository) {
 
     fun generatePlaneSet(): PlaneSet {
         val planes = repository.findAllByType(PLANE_TYPE).shuffled()
+        val phenomena = repository.findAllByType(PHENOM_TYPE).shuffled()
 
-        val planeSet = PlaneSet(planes.subList(0, 10), null)
+        val generatedPlaneSet = (planes.subList(0, 7) + phenomena.subList(0, 2))
+                .shuffled()
+                .toMutableList()
 
-        return planeSet
+        generatedPlaneSet.add(0, planes.last())
+
+        return PlaneSet(generatedPlaneSet.toList(), null)
     }
 }

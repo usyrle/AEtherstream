@@ -24,21 +24,45 @@ internal class PlaneServiceTest {
             PlaneCard("Plane11", "plane", "https://api.scryfall.com", 123411),
             PlaneCard("Plane12", "plane", "https://api.scryfall.com", 123412)
     )
+    val testPhenomena: List<PlaneCard> = listOf(
+            PlaneCard("Phenomenon1", "phenomenon", "https://api.scryfall.com", 99991),
+            PlaneCard("Phenomenon2", "phenomenon", "https://api.scryfall.com", 99992),
+            PlaneCard("Phenomenon3", "phenomenon", "https://api.scryfall.com", 99993),
+            PlaneCard("Phenomenon4", "phenomenon", "https://api.scryfall.com", 99994),
+            PlaneCard("Phenomenon5", "phenomenon", "https://api.scryfall.com", 99995),
+            PlaneCard("Phenomenon6", "phenomenon", "https://api.scryfall.com", 99996)
+    )
 
     @Test
-    fun generatePlaneSet_createsSetWithExactlyTenRandomPlanes() {
+    fun generatePlaneSet_createsSetWithExactlyEightRandomPlanesAndTwoRandomPhenomena() {
         val subject = PlaneService(mockRepository)
 
         whenever(mockRepository.findAllByType("plane")).thenReturn(testPlanes)
+        whenever(mockRepository.findAllByType("phenomenon")).thenReturn(testPhenomena)
 
         val actual: List<PlaneCard> = subject.generatePlaneSet().cards
-
-        assertThat(actual).hasSize(10)
 
         // check that elements are unique
         assertThat(actual).containsExactlyElementsOf(actual.toSet())
 
-        // yes, this can fail if i'm unlucky; it's rare enough that i'll live
-        assertThat(actual).isNotEqualTo(testPlanes.subList(0, 10))
+        assertThat(actual).filteredOn("type", "plane").hasSize(8)
+        assertThat(actual).filteredOn("type", "phenomenon").hasSize(2)
+    }
+
+    @Test
+    fun generatePlaneSet_firstElementIsNeverAPhenomenon() {
+        val subject = PlaneService(mockRepository)
+
+        whenever(mockRepository.findAllByType("plane")).thenReturn(testPlanes)
+        whenever(mockRepository.findAllByType("phenomenon")).thenReturn(testPhenomena)
+
+        val actualFirstElements: MutableList<PlaneCard> = mutableListOf()
+
+        for (i in 1..100) {
+            val actual: List<PlaneCard> = subject.generatePlaneSet().cards
+            actualFirstElements.add(actual[0])
+        }
+
+        assertThat(actualFirstElements).filteredOn("type", "phenomenon").isEmpty()
     }
 }
