@@ -1,4 +1,4 @@
-INSERT INTO PLANE_CARD (multiverse_id, name, type, scryfall_uri) VALUES
+INSERT INTO PLANAR_CARD (multiverse_id, name, type, scryfall_uri) VALUES
     (423590,'Academy at Tolaria West','plane','https://scryfall.com/card/opca/9/academy-at-tolaria-west'),
     (423592,'Agyrem','plane','https://scryfall.com/card/opca/11/agyrem'),
     (423593,'Akoum','plane','https://scryfall.com/card/opca/12/akoum'),
