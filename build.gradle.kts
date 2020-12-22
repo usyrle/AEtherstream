@@ -50,6 +50,7 @@ dependencies {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
     testImplementation("org.assertj:assertj-core:3.16.1")
+    testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0")
 }
 

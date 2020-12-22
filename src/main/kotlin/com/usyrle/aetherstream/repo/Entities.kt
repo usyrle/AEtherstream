@@ -12,6 +12,6 @@ class PlaneCard(
         var scryfallUri: String,
         @Id @GeneratedValue var multiverseId: Long? = null)
 
-class PlaneSet(
+class PlanarDeck(
         @OneToMany var cards: List<PlaneCard>,
         @Id @GeneratedValue var id: Long? = null)

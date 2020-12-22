@@ -1,8 +1,7 @@
 package com.usyrle.aetherstream.service
 
-import com.usyrle.aetherstream.repo.PlaneCard
+import com.usyrle.aetherstream.repo.PlanarDeck
 import com.usyrle.aetherstream.repo.PlaneCardRepository
-import com.usyrle.aetherstream.repo.PlaneSet
 import org.springframework.stereotype.Service
 
 const val PLANE_TYPE = "plane"
@@ -11,16 +10,21 @@ const val PHENOM_TYPE = "phenomenon"
 @Service
 class PlaneService(private val repository: PlaneCardRepository) {
 
-    fun generatePlaneSet(): PlaneSet {
+    fun generatePlanarDeck(deckSize: Int, usePhenomenon: Boolean): PlanarDeck {
+        if (deckSize < 10) throw IllegalArgumentException("planar deck must be at least 10 cards")
+
         val planes = repository.findAllByType(PLANE_TYPE).shuffled()
-        val phenomena = repository.findAllByType(PHENOM_TYPE).shuffled()
 
-        val generatedPlaneSet = (planes.subList(0, 7) + phenomena.subList(0, 2))
-                .shuffled()
-                .toMutableList()
+        if (usePhenomenon) {
+            val phenomena = repository.findAllByType(PHENOM_TYPE).shuffled()
 
-        generatedPlaneSet.add(0, planes.last())
+            val generatedPlaneList = listOf(planes.last()) +
+                    (planes.subList(0, deckSize - 3) + phenomena.subList(0, 2))
+                            .shuffled()
 
-        return PlaneSet(generatedPlaneSet.toList(), null)
+            return PlanarDeck(generatedPlaneList, null)
+        }
+
+        return PlanarDeck(planes.subList(0, deckSize), null)
     }
 }

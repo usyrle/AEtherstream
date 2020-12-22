@@ -6,6 +6,7 @@ import com.usyrle.aetherstream.repo.PlaneCard
 import com.usyrle.aetherstream.repo.PlaneCardRepository
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import kotlin.test.assertFailsWith
 
 internal class PlaneServiceTest {
 
@@ -22,7 +23,11 @@ internal class PlaneServiceTest {
             PlaneCard("Plane9", "plane", "https://api.scryfall.com", 12349),
             PlaneCard("Plane10", "plane", "https://api.scryfall.com", 123410),
             PlaneCard("Plane11", "plane", "https://api.scryfall.com", 123411),
-            PlaneCard("Plane12", "plane", "https://api.scryfall.com", 123412)
+            PlaneCard("Plane12", "plane", "https://api.scryfall.com", 123412),
+            PlaneCard("Plane13", "plane", "https://api.scryfall.com", 123412),
+            PlaneCard("Plane14", "plane", "https://api.scryfall.com", 123412),
+            PlaneCard("Plane15", "plane", "https://api.scryfall.com", 123412),
+            PlaneCard("Plane16", "plane", "https://api.scryfall.com", 123412)
     )
     val testPhenomena: List<PlaneCard> = listOf(
             PlaneCard("Phenomenon1", "phenomenon", "https://api.scryfall.com", 99991),
@@ -34,23 +39,50 @@ internal class PlaneServiceTest {
     )
 
     @Test
-    fun generatePlaneSet_createsSetWithExactlyEightRandomPlanesAndTwoRandomPhenomena() {
+    fun generatePlanarDeck_createsDeckOfRequestedSizeAndTwoPhenomenon() {
         val subject = PlaneService(mockRepository)
 
         whenever(mockRepository.findAllByType("plane")).thenReturn(testPlanes)
         whenever(mockRepository.findAllByType("phenomenon")).thenReturn(testPhenomena)
 
-        val actual: List<PlaneCard> = subject.generatePlaneSet().cards
+        val actual: List<PlaneCard> = subject.generatePlanarDeck(12, true).cards
 
         // check that elements are unique
         assertThat(actual).containsExactlyElementsOf(actual.toSet())
 
-        assertThat(actual).filteredOn("type", "plane").hasSize(8)
+        assertThat(actual).hasSize(12)
+        assertThat(actual).filteredOn("type", "plane").hasSize(10)
         assertThat(actual).filteredOn("type", "phenomenon").hasSize(2)
     }
 
     @Test
-    fun generatePlaneSet_firstElementIsNeverAPhenomenon() {
+    fun generatePlanarDeck_createsDeckWithoutPhenomenaWhenRequested() {
+        val subject = PlaneService(mockRepository)
+
+        whenever(mockRepository.findAllByType("plane")).thenReturn(testPlanes)
+
+        val actual: List<PlaneCard> = subject.generatePlanarDeck(16, false).cards
+
+        // check that elements are unique
+        assertThat(actual).containsExactlyElementsOf(actual.toSet())
+
+        assertThat(actual).filteredOn("type", "plane").hasSize(16)
+        assertThat(actual).filteredOn("type", "phenomenon").hasSize(0)
+    }
+
+    @Test
+    fun generatePlanarDeck_throwsErrorIfDeckSizeIsLessThanTen() {
+        val subject = PlaneService(mockRepository)
+
+        whenever(mockRepository.findAllByType("plane")).thenReturn(testPlanes)
+
+        assertFailsWith<IllegalArgumentException> {
+            subject.generatePlanarDeck(2, false)
+        }
+    }
+
+    @Test
+    fun generatePlanarDeck_firstElementIsNeverAPhenomenon() {
         val subject = PlaneService(mockRepository)
 
         whenever(mockRepository.findAllByType("plane")).thenReturn(testPlanes)
@@ -59,7 +91,7 @@ internal class PlaneServiceTest {
         val actualFirstElements: MutableList<PlaneCard> = mutableListOf()
 
         for (i in 1..100) {
-            val actual: List<PlaneCard> = subject.generatePlaneSet().cards
+            val actual: List<PlaneCard> = subject.generatePlanarDeck(10, true).cards
             actualFirstElements.add(actual[0])
         }
 
