@@ -6,4 +6,4 @@ interface PlanarCardRepository : CrudRepository<PlanarCard, Long> {
     fun findAllByType(type: String): Iterable<PlanarCard>
 }
 
-interface PlanarDeckRepository : CrudRepository<PlanarDeck, Long>
+interface PlanarDeckRepository : CrudRepository<PlanarDeck, String>

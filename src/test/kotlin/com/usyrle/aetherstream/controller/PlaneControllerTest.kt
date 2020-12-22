@@ -1,6 +1,7 @@
 package com.usyrle.aetherstream.controller
 
 import com.nhaarman.mockitokotlin2.verify
+import com.usyrle.aetherstream.repo.PlanarDeckRepository
 import com.usyrle.aetherstream.service.PlaneService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -12,6 +13,8 @@ internal class PlaneControllerTest {
 
     @Mock
     lateinit var mockPlaneService: PlaneService
+    @Mock
+    lateinit var mockRepository: PlanarDeckRepository
     @InjectMocks
     lateinit var subject: PlaneController
 
@@ -22,14 +25,14 @@ internal class PlaneControllerTest {
 
     @Test
     fun generateNewPlaneDeck_generatesWithRequestedValues() {
-        subject.generateNewPlaneDeck(GenerateRequest(20, false))
+        subject.generateNewPlanarDeck(GenerateRequest(20, false))
 
         verify(mockPlaneService).generatePlanarDeck(20, false)
     }
 
     @Test
     fun generateNewPlaneDeck_defaultsToTenCardsAndUsePhenomena() {
-        subject.generateNewPlaneDeck(GenerateRequest(null, null))
+        subject.generateNewPlanarDeck(GenerateRequest(null, null))
 
         verify(mockPlaneService).generatePlanarDeck(10, true)
     }

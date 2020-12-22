@@ -41,7 +41,8 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("org.jetbrains.kotlin:kotlin-noarg")
-    implementation("com.h2database:h2")
+    implementation("org.apache.commons:commons-lang3:3.11")
+    implementation("com.h2database:h2:1.4.200")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")

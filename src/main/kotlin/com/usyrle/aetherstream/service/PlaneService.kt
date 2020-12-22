@@ -22,7 +22,7 @@ class PlaneService(
         if (usePhenomenon) {
             val phenomena = planarCardRepository.findAllByType(PHENOM_TYPE).shuffled()
 
-            val generatedPlaneList = (planes.subList(0, deckSize - 3) + phenomena.subList(0, 2))
+            val generatedPlaneList = (planes.take(deckSize - 3) + phenomena.take(2))
                         .shuffled()
                         .toMutableList()
 
@@ -31,6 +31,6 @@ class PlaneService(
             return planarDeckRepository.save(PlanarDeck(generatedPlaneList))
         }
 
-        return planarDeckRepository.save(PlanarDeck(planes.subList(0, deckSize).toMutableList()))
+        return planarDeckRepository.save(PlanarDeck(planes.take(deckSize).toMutableList()))
     }
 }
