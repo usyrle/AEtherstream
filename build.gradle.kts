@@ -43,6 +43,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-noarg")
     implementation("org.apache.commons:commons-lang3:3.11")
     implementation("com.h2database:h2:1.4.200")
+    implementation("org.postgresql:postgresql:42.2.18")
 
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
