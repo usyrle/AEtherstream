@@ -1,8 +1,13 @@
 # Aetherstream: Back-end Planechase engine
 
-Aetherstream will be a back-end application managing creation and state of [Planechase](https://mtg.fandom.com/wiki/Planechase_%28format%29) decks.
+Aetherstream is a back-end application managing creation and state of [Planechase](https://mtg.fandom.com/wiki/Planechase_%28format%29) decks.
 
-Aetherstream will also support the [Eternities Map](https://magic.wizards.com/en/articles/archive/feature/eternities-map-2010-07-19-0) variant.
+The API is consumed by [Aethermap](https://github.com/usyrle/aethermap) to present a planechase game to multiple players.
+
+Future features:
+* Allow card selection for a planechase deck
+* Websockets for concurrent state updates to all players
+* Support [Eternities Map](https://magic.wizards.com/en/articles/archive/feature/eternities-map-2010-07-19-0) game variant
 
 ---
 
