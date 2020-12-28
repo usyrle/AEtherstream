@@ -5,6 +5,7 @@ import com.usyrle.aetherstream.repo.PlanarDeckRepository
 import com.usyrle.aetherstream.service.PlaneService
 import org.springframework.web.bind.annotation.*
 
+@CrossOrigin
 @RestController
 @RequestMapping("/deck")
 class PlaneController(private val service: PlaneService, private val repo: PlanarDeckRepository) {
