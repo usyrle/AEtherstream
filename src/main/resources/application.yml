@@ -1,1 +1,1 @@
-deck.prune.schedule: 00 00 * * *
+deck.prune.schedule: 00 00 00 * * *
