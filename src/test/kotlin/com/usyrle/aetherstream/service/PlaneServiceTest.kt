@@ -6,13 +6,16 @@ import com.usyrle.aetherstream.repo.PlanarCard
 import com.usyrle.aetherstream.repo.PlanarCardRepository
 import com.usyrle.aetherstream.repo.PlanarDeck
 import com.usyrle.aetherstream.repo.PlanarDeckRepository
+import org.apache.commons.lang3.time.DateUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks
 import org.mockito.Mock
+import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations.initMocks
+import java.util.*
 import kotlin.test.assertFailsWith
 
 internal class PlaneServiceTest {
@@ -113,5 +116,27 @@ internal class PlaneServiceTest {
         }
 
         assertThat(actualFirstElements).filteredOn("type", "phenomenon").isEmpty()
+    }
+
+    @Test
+    fun pruneOldPlanarDecks_removeAllDecksOlderThan24Hours() {
+        val testDecks = listOf(
+                PlanarDeck(mutableListOf(), Date(), 0, "abcdef" ),
+                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), 0, "ghijkl"),
+                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), 0, "mnopqr"),
+                PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), 0, "stuvwx"),
+                PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), 0, "yabbaz")
+        )
+
+        whenever(mockDeckRepository.findAll()).thenReturn(testDecks)
+
+        subject.pruneOldPlanarDecks()
+
+        verify(mockDeckRepository, never()).delete(testDecks[0])
+        verify(mockDeckRepository, never()).delete(testDecks[1])
+
+        verify(mockDeckRepository).delete(testDecks[2])
+        verify(mockDeckRepository).delete(testDecks[3])
+        verify(mockDeckRepository).delete(testDecks[4])
     }
 }

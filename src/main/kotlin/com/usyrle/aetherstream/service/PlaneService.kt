@@ -1,14 +1,20 @@
 package com.usyrle.aetherstream.service
 
-import com.usyrle.aetherstream.repo.PlanarDeck
 import com.usyrle.aetherstream.repo.PlanarCardRepository
+import com.usyrle.aetherstream.repo.PlanarDeck
 import com.usyrle.aetherstream.repo.PlanarDeckRepository
+import org.springframework.scheduling.annotation.EnableScheduling
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
+import java.util.*
 
 const val PLANE_TYPE = "plane"
 const val PHENOM_TYPE = "phenomenon"
 
+const val MILLISECONDS_IN_24H = 86400000
+
 @Service
+@EnableScheduling
 class PlaneService(
     private val planarCardRepository: PlanarCardRepository,
     private val planarDeckRepository: PlanarDeckRepository
@@ -32,5 +38,17 @@ class PlaneService(
         }
 
         return planarDeckRepository.save(PlanarDeck(planes.take(deckSize).toMutableList()))
+    }
+
+    @Scheduled(cron = "\${deck.prune.schedule}")
+    fun pruneOldPlanarDecks() {
+        val deckList = planarDeckRepository.findAll()
+        val current = Date()
+
+        for (deck in deckList) {
+            if (current.time - deck.startTime.time > MILLISECONDS_IN_24H) {
+                planarDeckRepository.delete(deck)
+            }
+        }
     }
 }
