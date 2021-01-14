@@ -14,7 +14,8 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
     fun generateNewPlanarDeck(
         @RequestBody request: GenerateRequest
     ): PlanarDeckInfo {
-        val newDeck = service.generatePlanarDeck(request.size ?: 10, request.phenomena ?: true)
+        val deckSize = decideDeckSize(request.size ?: 10, request.phenomena ?: true)
+        val newDeck = service.generatePlanarDeck(deckSize, request.phenomena ?: true)
 
         return PlanarDeckInfo(
             deckSize = newDeck.cards.size,
