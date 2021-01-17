@@ -49,26 +49,27 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
     ): PlanarDeckInfo? {
         val result = repo.findById(deckId)
 
-        if (result.isPresent) {
-            val deck = result.get()
-            val nextPlaneIndex = if (deck.currentIndex + 1 >= deck.cards.size) 0 else deck.currentIndex + 1
-
-            repo.save(
-                PlanarDeck(
-                    cards = deck.cards,
-                    startTime = deck.startTime,
-                    currentIndex = nextPlaneIndex,
-                    id = deck.id
-                )
-            )
-
-            return PlanarDeckInfo(
-                deckSize = deck.cards.size,
-                currentPlane = deck.cards[nextPlaneIndex],
-                startTime = deck.startTime.toInstant().epochSecond,
-                id = deck.id ?: "00000000"
-            )
+        if (result.isEmpty) {
+            return null
         }
-        return null
+
+        val deck = result.get()
+        val nextPlaneIndex = if (deck.currentIndex + 1 >= deck.cards.size) 0 else deck.currentIndex + 1
+
+        repo.save(
+            PlanarDeck(
+                cards = deck.cards,
+                startTime = deck.startTime,
+                currentIndex = nextPlaneIndex,
+                id = deck.id
+            )
+        )
+
+        return PlanarDeckInfo(
+            deckSize = deck.cards.size,
+            currentPlane = deck.cards[nextPlaneIndex],
+            startTime = deck.startTime.toInstant().epochSecond,
+            id = deck.id ?: "00000000"
+        )
     }
 }

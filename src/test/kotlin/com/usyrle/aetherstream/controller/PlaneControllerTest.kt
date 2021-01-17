@@ -1,7 +1,6 @@
 package com.usyrle.aetherstream.controller
 
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doNothing
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.usyrle.aetherstream.repo.PlanarCard
@@ -17,9 +16,9 @@ import java.util.*
 internal class PlaneControllerTest {
 
     val testCards = mutableListOf(
-        PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
-        PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
-        PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343)
+            PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
+            PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
+            PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343)
     )
 
     @Captor
@@ -39,10 +38,10 @@ internal class PlaneControllerTest {
         MockitoAnnotations.initMocks(this)
 
         whenever(mockPlaneService.generatePlanarDeck(any(), any())).thenReturn(
-            PlanarDeck(
-                cards = testCards,
-                startTime = Date()
-            )
+                PlanarDeck(
+                        cards = testCards,
+                        startTime = Date()
+                )
         )
     }
 
@@ -63,10 +62,10 @@ internal class PlaneControllerTest {
     @Test
     fun generateNewPlanarDeck_returnsBasicInfoAboutDeck() {
         val testDeck = PlanarDeck(
-            cards = testCards,
-            startTime = Date(),
-            currentIndex = 0,
-            id = "TEST"
+                cards = testCards,
+                startTime = Date(),
+                currentIndex = 0,
+                id = "TEST"
         )
 
         whenever(mockPlaneService.generatePlanarDeck(any(), any())).thenReturn(testDeck)
@@ -82,10 +81,10 @@ internal class PlaneControllerTest {
     @Test
     fun getPlanarDeckInfo_returnsBasicInfoAboutDeck() {
         val testDeck = PlanarDeck(
-            cards = testCards,
-            startTime = Date(),
-            currentIndex = 2,
-            id = "TEST"
+                cards = testCards,
+                startTime = Date(),
+                currentIndex = 2,
+                id = "TEST"
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
@@ -110,10 +109,10 @@ internal class PlaneControllerTest {
     @Test
     fun playNextPlanarCard_returnsBasicInfoAboutDeck() {
         val testDeck = PlanarDeck(
-            cards = testCards,
-            startTime = Date(),
-            currentIndex = 0,
-            id = "TEST"
+                cards = testCards,
+                startTime = Date(),
+                currentIndex = 0,
+                id = "TEST"
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
@@ -130,10 +129,10 @@ internal class PlaneControllerTest {
     @Test
     fun playNextPlanarCard_updatesDatabaseWithNewIndex() {
         val testDeck = PlanarDeck(
-            cards = testCards,
-            startTime = Date(),
-            currentIndex = 0,
-            id = "TEST"
+                cards = testCards,
+                startTime = Date(),
+                currentIndex = 0,
+                id = "TEST"
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
@@ -153,10 +152,10 @@ internal class PlaneControllerTest {
     @Test
     fun playNextPlanarCard_indexRollsOverWhenListEndIsReached() {
         val testDeck = PlanarDeck(
-            cards = testCards,
-            startTime = Date(),
-            currentIndex = 2,
-            id = "TEST"
+                cards = testCards,
+                startTime = Date(),
+                currentIndex = 2,
+                id = "TEST"
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
@@ -164,10 +163,10 @@ internal class PlaneControllerTest {
         subject.playNextPlanarCard("TEST")
 
         verify(mockRepository).save(PlanarDeck(
-            cards = testDeck.cards,
-            startTime = testDeck.startTime,
-            currentIndex = 0,
-            id = testDeck.id
+                cards = testDeck.cards,
+                startTime = testDeck.startTime,
+                currentIndex = 0,
+                id = testDeck.id
         ))
     }
 
