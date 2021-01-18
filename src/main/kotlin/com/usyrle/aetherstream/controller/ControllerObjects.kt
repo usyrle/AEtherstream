@@ -12,6 +12,7 @@ data class GenerateRequest(
 data class PlanarDeckInfo(
     var deckSize: Int,
     var currentPlane: PlanarCard,
+    var spatialMergingPlane: PlanarCard? = null,
     var startTime: Long,
     var id: String
 )

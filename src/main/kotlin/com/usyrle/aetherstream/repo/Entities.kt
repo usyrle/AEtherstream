@@ -22,6 +22,7 @@ data class PlanarDeck(
     @ManyToMany var cards: MutableList<PlanarCard>,
     var startTime: Date = Date(),
     @OneToOne var currentCard: PlanarCard,
+    @OneToOne var spatialMergingCard: PlanarCard? = null,
     @Id
     @GenericGenerator(name = "deck_id", strategy = "com.usyrle.aetherstream.repo.DeckIdGenerator")
     @GeneratedValue(generator = "deck_id")

@@ -35,6 +35,7 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
             return PlanarDeckInfo(
                 deckSize = requestedDeck.cards.size + 1,
                 currentPlane = requestedDeck.currentCard,
+                spatialMergingPlane = requestedDeck.spatialMergingCard,
                 startTime = requestedDeck.startTime.toInstant().epochSecond,
                 id = requestedDeck.id ?: "00000000"
             )
@@ -58,6 +59,7 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
         return PlanarDeckInfo(
             deckSize = updatedDeck.cards.size + 1,
             currentPlane = updatedDeck.currentCard,
+            spatialMergingPlane = updatedDeck.spatialMergingCard,
             startTime = updatedDeck.startTime.toInstant().epochSecond,
             id = updatedDeck.id ?: "00000000"
         )

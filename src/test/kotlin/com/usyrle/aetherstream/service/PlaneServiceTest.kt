@@ -151,7 +151,6 @@ internal class PlaneServiceTest {
         subject.playNextPlanarCard(testDeck)
 
         verify(mockDeckRepository).save(deckCaptor.capture())
-
         val actual = deckCaptor.value
 
         assertThat(actual.startTime).isEqualTo(testDeck.startTime)
@@ -177,20 +176,111 @@ internal class PlaneServiceTest {
         subject.playNextPlanarCard(testDeck)
 
         verify(mockDeckRepository).save(deckCaptor.capture())
-
         val actual = deckCaptor.value
 
         assertThat(actual.cards.last()).isEqualTo(testCurrentPlane)
     }
 
     @Test
+    fun playNextPlanarCard_spatialMerging_populatesSpatialMergingPlane() {
+        val spatialMerging = PlanarCard(
+            "Spatial Merging",
+            "phenomenon",
+            "https://scryfall.com/card/opca/7/spatial-merging",
+            423588)
+        val testDeck = PlanarDeck(
+            cards = testPlanes.toMutableList(),
+            startTime = Date(),
+            currentCard = spatialMerging,
+            id = "TEST"
+        )
+
+        subject.playNextPlanarCard(testDeck)
+
+        verify(mockDeckRepository).save(deckCaptor.capture())
+
+        val actual = deckCaptor.value
+
+        assertThat(actual.spatialMergingCard).isEqualTo(testPlanes[0])
+        assertThat(actual.currentCard).isEqualTo(testPlanes[1])
+        assertThat(actual.cards).doesNotContainAnyElementsOf(
+            listOf(actual.currentCard, actual.spatialMergingCard))
+    }
+
+    @Test
+    fun playNextPlanarCard_spatialMerging_pushesNonPlaneCardsToBottomOfDeckWhenDeterminingSpatialMergingPlane() {
+        val spatialMerging = PlanarCard(
+            "Spatial Merging",
+            "phenomenon",
+            "https://scryfall.com/card/opca/7/spatial-merging",
+            423588)
+        val testCards = mutableListOf(
+            PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
+            PlanarCard("Phenomenon1", "phenomenon", "https://api.scryfall.com", 99991),
+            PlanarCard("Phenomenon2", "phenomenon", "https://api.scryfall.com", 99992),
+            PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
+            PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343)
+        )
+        val testDeck = PlanarDeck(
+            cards = testCards,
+            startTime = Date(),
+            currentCard = spatialMerging,
+            id = "TEST"
+        )
+
+        subject.playNextPlanarCard(testDeck)
+
+        verify(mockDeckRepository).save(deckCaptor.capture())
+        val actual = deckCaptor.value
+
+        assertThat(actual.spatialMergingCard!!.name).isEqualTo("Plane1")
+        assertThat(actual.currentCard.name).isEqualTo("Plane2")
+        assertThat(actual.cards).extracting("name").containsExactly(
+            "Plane3",
+            "Phenomenon1",
+            "Phenomenon2",
+            "Spatial Merging")
+    }
+
+    @Test
+    fun playNextPlanarCard_spatialMerging_putsBothPlanesOnBottomOfDeck() {
+        val testCurrentPlane = PlanarCard(
+            "CurrentPlane",
+            "plane",
+            "https://api.scryfall.com",
+            99999)
+        val testSpatialMergingPlane = PlanarCard(
+            "SpatialMergingPlane",
+            "plane",
+            "https://api.scryfall.com",
+            88888)
+        val testDeck = PlanarDeck(
+            cards = testPlanes.toMutableList(),
+            startTime = Date(),
+            currentCard = testCurrentPlane,
+            spatialMergingCard = testSpatialMergingPlane,
+            id = "TEST"
+        )
+
+        subject.playNextPlanarCard(testDeck)
+
+        verify(mockDeckRepository).save(deckCaptor.capture())
+        val actual = deckCaptor.value
+
+        assertThat(actual.cards.subList(actual.cards.size - 2, actual.cards.size)).containsExactlyInAnyOrder(
+            testCurrentPlane,
+            testSpatialMergingPlane
+        )
+    }
+
+        @Test
     fun pruneOldPlanarDecks_removeAllDecksOlderThan24Hours() {
         val testDecks = listOf(
-                PlanarDeck(mutableListOf(), Date(), testPlanes[0], "abcdef" ),
-                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), testPlanes[0], "ghijkl"),
-                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), testPlanes[0], "mnopqr"),
-                PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), testPlanes[0], "stuvwx"),
-                PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), testPlanes[0], "yabbaz")
+                PlanarDeck(mutableListOf(), Date(), testPlanes[0], null, "abcdef" ),
+                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), testPlanes[0], null, "ghijkl"),
+                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), testPlanes[0], null, "mnopqr"),
+                PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), testPlanes[0], null, "stuvwx"),
+                PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), testPlanes[0], null, "yabbaz")
         )
 
         whenever(mockDeckRepository.findAll()).thenReturn(testDecks)

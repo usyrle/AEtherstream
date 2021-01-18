@@ -1,5 +1,6 @@
 package com.usyrle.aetherstream.service
 
+import com.usyrle.aetherstream.repo.PlanarCard
 import com.usyrle.aetherstream.repo.PlanarCardRepository
 import com.usyrle.aetherstream.repo.PlanarDeck
 import com.usyrle.aetherstream.repo.PlanarDeckRepository
@@ -11,6 +12,7 @@ const val PLANE_TYPE = "plane"
 const val PHENOM_TYPE = "phenomenon"
 
 const val MILLISECONDS_IN_24H = 86400000
+const val SPATIAL_MERGING_ID: Long = 423588
 
 @Service
 class PlaneService(
@@ -41,6 +43,49 @@ class PlaneService(
     }
 
     fun playNextPlanarCard(deck: PlanarDeck): PlanarDeck {
+        // handle Spatial Merging phenomenon
+        if (deck.currentCard.multiverseId == SPATIAL_MERGING_ID) {
+            var spatialMergingPlane: PlanarCard? = null
+            var nextPlane: PlanarCard? = null
+
+            while (spatialMergingPlane == null) {
+                val tempPlane = deck.cards[0]
+                if (tempPlane.type != "plane") {
+                    deck.cards.remove(tempPlane)
+                    deck.cards.add(tempPlane)
+                } else {
+                    spatialMergingPlane = tempPlane
+                    deck.cards.remove(tempPlane)
+                }
+            }
+
+            while (nextPlane == null) {
+                val tempPlane = deck.cards[0]
+                if (tempPlane.type != "plane") {
+                    deck.cards.remove(tempPlane)
+                    deck.cards.add(tempPlane)
+                } else {
+                    nextPlane = tempPlane
+                    deck.cards.remove(tempPlane)
+                }
+            }
+
+            deck.cards.add(deck.currentCard)
+
+            return planarDeckRepository.save(
+                PlanarDeck(
+                    cards = deck.cards,
+                    startTime = deck.startTime,
+                    spatialMergingCard = spatialMergingPlane,
+                    currentCard = nextPlane,
+                    id = deck.id
+                )
+            )
+        }
+        if (deck.spatialMergingCard != null) {
+            deck.cards.add(deck.spatialMergingCard!!)
+        }
+
         val nextPlane = deck.cards[0]
         deck.cards.remove(nextPlane)
         deck.cards.add(deck.currentCard)
