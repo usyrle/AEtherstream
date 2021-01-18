@@ -38,6 +38,19 @@ class PlaneService(
         return planarDeckRepository.save(PlanarDeck(planes.take(deckSize).toMutableList()))
     }
 
+    fun playNextPlanarCard(deck: PlanarDeck): PlanarDeck {
+        val nextPlaneIndex = if (deck.currentIndex + 1 >= deck.cards.size) 0 else deck.currentIndex + 1
+
+        return planarDeckRepository.save(
+                PlanarDeck(
+                        cards = deck.cards,
+                        startTime = deck.startTime,
+                        currentIndex = nextPlaneIndex,
+                        id = deck.id
+                )
+        )
+    }
+
     @Scheduled(cron = "\${deck.prune.schedule}")
     fun pruneOldPlanarDecks() {
         val deckList = planarDeckRepository.findAll()

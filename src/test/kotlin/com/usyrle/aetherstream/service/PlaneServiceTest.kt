@@ -1,6 +1,7 @@
 package com.usyrle.aetherstream.service
 
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.whenever
 import com.usyrle.aetherstream.repo.PlanarCard
 import com.usyrle.aetherstream.repo.PlanarCardRepository
@@ -10,10 +11,11 @@ import org.apache.commons.lang3.time.DateUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentCaptor
+import org.mockito.Captor
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.never
-import org.mockito.Mockito.verify
 import org.mockito.MockitoAnnotations.initMocks
 import java.util.*
 import kotlin.test.assertFailsWith
@@ -47,6 +49,8 @@ internal class PlaneServiceTest {
             PlanarCard("Phenomenon6", "phenomenon", "https://api.scryfall.com", 99996)
     )
 
+    @Captor
+    lateinit var deckCaptor: ArgumentCaptor<PlanarDeck>
     @Mock
     lateinit var mockCardRepository: PlanarCardRepository
     @Mock
@@ -116,6 +120,46 @@ internal class PlaneServiceTest {
         }
 
         assertThat(actualFirstElements).filteredOn("type", "phenomenon").isEmpty()
+    }
+
+    @Test
+    fun playNextPlanarCard_updatesDatabaseWithNewIndex() {
+        val testDeck = PlanarDeck(
+            cards = testPlanes.toMutableList(),
+            startTime = Date(),
+            currentIndex = 0,
+            id = "TEST"
+        )
+
+        subject.playNextPlanarCard(testDeck)
+
+        verify(mockDeckRepository).save(deckCaptor.capture())
+
+        val actual = deckCaptor.value
+
+        assertThat(actual.cards).isEqualTo(testDeck.cards)
+        assertThat(actual.startTime).isEqualTo(testDeck.startTime)
+        assertThat(actual.currentIndex).isEqualTo(testDeck.currentIndex + 1)
+        assertThat(actual.id).isEqualTo(testDeck.id)
+    }
+
+    @Test
+    fun playNextPlanarCard_indexRollsOverWhenListEndIsReached() {
+        val testDeck = PlanarDeck(
+            cards = testPlanes.toMutableList(),
+            startTime = Date(),
+            currentIndex = testPlanes.size - 1,
+            id = "TEST"
+        )
+
+        subject.playNextPlanarCard(testDeck)
+
+        verify(mockDeckRepository).save(PlanarDeck(
+            cards = testDeck.cards,
+            startTime = testDeck.startTime,
+            currentIndex = 0,
+            id = testDeck.id
+        ))
     }
 
     @Test

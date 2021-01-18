@@ -116,58 +116,14 @@ internal class PlaneControllerTest {
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
-        whenever(mockRepository.save(testDeck)).thenReturn(testDeck)
+        whenever(mockPlaneService.playNextPlanarCard(testDeck)).thenReturn(testDeck)
 
         val actual = subject.playNextPlanarCard("TEST")
 
         assertThat(actual!!.deckSize).isEqualTo(testCards.size)
         assertThat(actual.startTime).isEqualTo(testDeck.startTime.toInstant().epochSecond)
-        assertThat(actual.currentPlane).isEqualTo(testCards[1])
+        assertThat(actual.currentPlane).isEqualTo(testCards[testDeck.currentIndex])
         assertThat(actual.id).isEqualTo(testDeck.id)
-    }
-
-    @Test
-    fun playNextPlanarCard_updatesDatabaseWithNewIndex() {
-        val testDeck = PlanarDeck(
-                cards = testCards,
-                startTime = Date(),
-                currentIndex = 0,
-                id = "TEST"
-        )
-
-        whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
-
-        subject.playNextPlanarCard("TEST")
-
-        verify(mockRepository).save(deckCaptor.capture())
-
-        val actual = deckCaptor.value
-
-        assertThat(actual.cards).isEqualTo(testCards)
-        assertThat(actual.startTime).isEqualTo(testDeck.startTime)
-        assertThat(actual.currentIndex).isEqualTo(testDeck.currentIndex + 1)
-        assertThat(actual.id).isEqualTo(testDeck.id)
-    }
-
-    @Test
-    fun playNextPlanarCard_indexRollsOverWhenListEndIsReached() {
-        val testDeck = PlanarDeck(
-                cards = testCards,
-                startTime = Date(),
-                currentIndex = 2,
-                id = "TEST"
-        )
-
-        whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
-
-        subject.playNextPlanarCard("TEST")
-
-        verify(mockRepository).save(PlanarDeck(
-                cards = testDeck.cards,
-                startTime = testDeck.startTime,
-                currentIndex = 0,
-                id = testDeck.id
-        ))
     }
 
     @Test
