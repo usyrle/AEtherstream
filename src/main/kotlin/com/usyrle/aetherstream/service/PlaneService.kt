@@ -3,7 +3,6 @@ package com.usyrle.aetherstream.service
 import com.usyrle.aetherstream.repo.PlanarCardRepository
 import com.usyrle.aetherstream.repo.PlanarDeck
 import com.usyrle.aetherstream.repo.PlanarDeckRepository
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Service
 import java.util.*
@@ -14,7 +13,6 @@ const val PHENOM_TYPE = "phenomenon"
 const val MILLISECONDS_IN_24H = 86400000
 
 @Service
-@EnableScheduling
 class PlaneService(
     private val planarCardRepository: PlanarCardRepository,
     private val planarDeckRepository: PlanarDeckRepository
