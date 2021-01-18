@@ -21,6 +21,8 @@ internal class PlaneControllerTest {
             PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343)
     )
 
+    val testCurrentCard = PlanarCard("Current", "plane", "https://api.scryfall.com", 99999)
+
     @Captor
     lateinit var deckCaptor: ArgumentCaptor<PlanarDeck>
 
@@ -40,6 +42,7 @@ internal class PlaneControllerTest {
         whenever(mockPlaneService.generatePlanarDeck(any(), any())).thenReturn(
                 PlanarDeck(
                         cards = testCards,
+                        currentCard = testCurrentCard,
                         startTime = Date()
                 )
         )
@@ -64,7 +67,7 @@ internal class PlaneControllerTest {
         val testDeck = PlanarDeck(
                 cards = testCards,
                 startTime = Date(),
-                currentIndex = 0,
+                currentCard = testCurrentCard,
                 id = "TEST"
         )
 
@@ -72,9 +75,9 @@ internal class PlaneControllerTest {
 
         val actual: PlanarDeckInfo = subject.generateNewPlanarDeck(GenerateRequest(null, null))
 
-        assertThat(actual.deckSize).isEqualTo(testCards.size)
+        assertThat(actual.deckSize).isEqualTo(testCards.size + 1)
         assertThat(actual.startTime).isEqualTo(testDeck.startTime.toInstant().epochSecond)
-        assertThat(actual.currentPlane).isEqualTo(testCards[0])
+        assertThat(actual.currentPlane).isEqualTo(testDeck.currentCard)
         assertThat(actual.id).isEqualTo(testDeck.id)
     }
 
@@ -83,7 +86,7 @@ internal class PlaneControllerTest {
         val testDeck = PlanarDeck(
                 cards = testCards,
                 startTime = Date(),
-                currentIndex = 2,
+                currentCard = testCurrentCard,
                 id = "TEST"
         )
 
@@ -91,9 +94,9 @@ internal class PlaneControllerTest {
 
         val actual = subject.getPlanarDeckInfo("TEST")
 
-        assertThat(actual!!.deckSize).isEqualTo(testCards.size)
+        assertThat(actual!!.deckSize).isEqualTo(testCards.size + 1)
         assertThat(actual.startTime).isEqualTo(testDeck.startTime.toInstant().epochSecond)
-        assertThat(actual.currentPlane).isEqualTo(testCards[2])
+        assertThat(actual.currentPlane).isEqualTo(testDeck.currentCard)
         assertThat(actual.id).isEqualTo(testDeck.id)
     }
 
@@ -111,7 +114,7 @@ internal class PlaneControllerTest {
         val testDeck = PlanarDeck(
                 cards = testCards,
                 startTime = Date(),
-                currentIndex = 0,
+                currentCard = testCurrentCard,
                 id = "TEST"
         )
 
@@ -120,9 +123,9 @@ internal class PlaneControllerTest {
 
         val actual = subject.playNextPlanarCard("TEST")
 
-        assertThat(actual!!.deckSize).isEqualTo(testCards.size)
+        assertThat(actual!!.deckSize).isEqualTo(testCards.size + 1)
         assertThat(actual.startTime).isEqualTo(testDeck.startTime.toInstant().epochSecond)
-        assertThat(actual.currentPlane).isEqualTo(testCards[testDeck.currentIndex])
+        assertThat(actual.currentPlane).isEqualTo(testDeck.currentCard)
         assertThat(actual.id).isEqualTo(testDeck.id)
     }
 

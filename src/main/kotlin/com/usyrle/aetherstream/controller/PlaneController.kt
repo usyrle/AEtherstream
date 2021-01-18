@@ -17,8 +17,8 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
         val newDeck = service.generatePlanarDeck(deckSize, request.phenomena ?: true)
 
         return PlanarDeckInfo(
-            deckSize = newDeck.cards.size,
-            currentPlane = newDeck.cards[0],
+            deckSize = newDeck.cards.size + 1,
+            currentPlane = newDeck.currentCard,
             startTime = newDeck.startTime.toInstant().epochSecond,
             id = newDeck.id ?: "00000000"
         )
@@ -33,8 +33,8 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
         if (result.isPresent) {
             val requestedDeck = result.get()
             return PlanarDeckInfo(
-                deckSize = requestedDeck.cards.size,
-                currentPlane = requestedDeck.cards[requestedDeck.currentIndex],
+                deckSize = requestedDeck.cards.size + 1,
+                currentPlane = requestedDeck.currentCard,
                 startTime = requestedDeck.startTime.toInstant().epochSecond,
                 id = requestedDeck.id ?: "00000000"
             )
@@ -56,8 +56,8 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
         val updatedDeck = service.playNextPlanarCard(deck);
 
         return PlanarDeckInfo(
-            deckSize = updatedDeck.cards.size,
-            currentPlane = updatedDeck.cards[updatedDeck.currentIndex],
+            deckSize = updatedDeck.cards.size + 1,
+            currentPlane = updatedDeck.currentCard,
             startTime = updatedDeck.startTime.toInstant().epochSecond,
             id = updatedDeck.id ?: "00000000"
         )

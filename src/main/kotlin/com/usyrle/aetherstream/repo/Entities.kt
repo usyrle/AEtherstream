@@ -7,10 +7,7 @@ import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.id.IdentifierGenerator
 import java.io.Serializable
 import java.util.*
-import javax.persistence.Entity
-import javax.persistence.GeneratedValue
-import javax.persistence.Id
-import javax.persistence.ManyToMany
+import javax.persistence.*
 
 @Entity
 data class PlanarCard(
@@ -24,7 +21,7 @@ data class PlanarCard(
 data class PlanarDeck(
     @ManyToMany var cards: MutableList<PlanarCard>,
     var startTime: Date = Date(),
-    var currentIndex: Int = 0,
+    @OneToOne var currentCard: PlanarCard,
     @Id
     @GenericGenerator(name = "deck_id", strategy = "com.usyrle.aetherstream.repo.DeckIdGenerator")
     @GeneratedValue(generator = "deck_id")

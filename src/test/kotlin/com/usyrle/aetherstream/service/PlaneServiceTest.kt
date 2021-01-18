@@ -71,14 +71,16 @@ internal class PlaneServiceTest {
     fun generatePlanarDeck_createsDeckOfRequestedSizeAndTwoPhenomenon() {
         whenever(mockCardRepository.findAllByType("phenomenon")).thenReturn(testPhenomena)
 
-        val actual: List<PlanarCard> = subject.generatePlanarDeck(12, true).cards
+        val actual = subject.generatePlanarDeck(12, true)
 
         // check that elements are unique
-        assertThat(actual).containsExactlyElementsOf(actual.toSet())
+        assertThat(actual.cards).containsExactlyElementsOf(actual.cards.toSet())
 
-        assertThat(actual).hasSize(12)
-        assertThat(actual).filteredOn("type", "plane").hasSize(10)
-        assertThat(actual).filteredOn("type", "phenomenon").hasSize(2)
+        assertThat(actual.cards).hasSize(12 - 1)
+        assertThat(actual.cards).filteredOn("type", "plane").hasSizeLessThanOrEqualTo(10)
+        assertThat(actual.cards).filteredOn("type", "phenomenon").hasSizeLessThanOrEqualTo(2)
+
+        assertThat(actual.currentCard).isNotNull
     }
 
     @Test
@@ -92,13 +94,15 @@ internal class PlaneServiceTest {
 
     @Test
     fun generatePlanarDeck_createsDeckWithoutPhenomenaWhenRequested() {
-        val actual: List<PlanarCard> = subject.generatePlanarDeck(16, false).cards
+        val actual = subject.generatePlanarDeck(16, false)
 
         // check that elements are unique
-        assertThat(actual).containsExactlyElementsOf(actual.toSet())
+        assertThat(actual.cards).containsExactlyElementsOf(actual.cards.toSet())
 
-        assertThat(actual).filteredOn("type", "plane").hasSize(16)
-        assertThat(actual).filteredOn("type", "phenomenon").hasSize(0)
+        assertThat(actual.cards).filteredOn("type", "plane").hasSizeLessThanOrEqualTo(16)
+        assertThat(actual.cards).filteredOn("type", "phenomenon").isEmpty()
+
+        assertThat(actual.currentCard.type).isEqualTo("plane")
     }
 
     @Test
@@ -109,25 +113,38 @@ internal class PlaneServiceTest {
     }
 
     @Test
-    fun generatePlanarDeck_firstElementIsNeverAPhenomenon() {
+    fun generatePlanarDeck_currentCardIsNeverAPhenomenon() {
         whenever(mockCardRepository.findAllByType("phenomenon")).thenReturn(testPhenomena)
 
         val actualFirstElements: MutableList<PlanarCard> = mutableListOf()
 
         for (i in 1..100) {
-            val actual: List<PlanarCard> = subject.generatePlanarDeck(10, true).cards
-            actualFirstElements.add(actual[0])
+            val actual = subject.generatePlanarDeck(10, true)
+            actualFirstElements.add(actual.currentCard)
         }
 
         assertThat(actualFirstElements).filteredOn("type", "phenomenon").isEmpty()
     }
 
     @Test
-    fun playNextPlanarCard_updatesDatabaseWithNewIndex() {
+    fun generatePlanarDeck_currentCardIsNeverInCardsList() {
+        for (i in 1..100) {
+            val actual = subject.generatePlanarDeck(10, false)
+            assertThat(actual.cards).doesNotContain(actual.currentCard)
+        }
+    }
+
+    @Test
+    fun playNextPlanarCard_updatesDatabaseWithNewCurrentCard() {
+        val testCurrentPlane = PlanarCard(
+            "CurrentPlane",
+            "plane",
+            "https://api.scryfall.com",
+            99999)
         val testDeck = PlanarDeck(
             cards = testPlanes.toMutableList(),
             startTime = Date(),
-            currentIndex = 0,
+            currentCard = testCurrentPlane,
             id = "TEST"
         )
 
@@ -137,39 +154,43 @@ internal class PlaneServiceTest {
 
         val actual = deckCaptor.value
 
-        assertThat(actual.cards).isEqualTo(testDeck.cards)
         assertThat(actual.startTime).isEqualTo(testDeck.startTime)
-        assertThat(actual.currentIndex).isEqualTo(testDeck.currentIndex + 1)
+        assertThat(actual.currentCard).isEqualTo(testPlanes[0])
+        assertThat(actual.cards).doesNotContain(actual.currentCard)
         assertThat(actual.id).isEqualTo(testDeck.id)
     }
 
     @Test
-    fun playNextPlanarCard_indexRollsOverWhenListEndIsReached() {
+    fun playNextPlanarCard_pushesPreviousCardToEndOfCardsList() {
+        val testCurrentPlane = PlanarCard(
+            "CurrentPlane",
+            "plane",
+            "https://api.scryfall.com",
+            99999)
         val testDeck = PlanarDeck(
             cards = testPlanes.toMutableList(),
             startTime = Date(),
-            currentIndex = testPlanes.size - 1,
+            currentCard = testCurrentPlane,
             id = "TEST"
         )
 
         subject.playNextPlanarCard(testDeck)
 
-        verify(mockDeckRepository).save(PlanarDeck(
-            cards = testDeck.cards,
-            startTime = testDeck.startTime,
-            currentIndex = 0,
-            id = testDeck.id
-        ))
+        verify(mockDeckRepository).save(deckCaptor.capture())
+
+        val actual = deckCaptor.value
+
+        assertThat(actual.cards.last()).isEqualTo(testCurrentPlane)
     }
 
     @Test
     fun pruneOldPlanarDecks_removeAllDecksOlderThan24Hours() {
         val testDecks = listOf(
-                PlanarDeck(mutableListOf(), Date(), 0, "abcdef" ),
-                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), 0, "ghijkl"),
-                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), 0, "mnopqr"),
-                PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), 0, "stuvwx"),
-                PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), 0, "yabbaz")
+                PlanarDeck(mutableListOf(), Date(), testPlanes[0], "abcdef" ),
+                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), testPlanes[0], "ghijkl"),
+                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), testPlanes[0], "mnopqr"),
+                PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), testPlanes[0], "stuvwx"),
+                PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), testPlanes[0], "yabbaz")
         )
 
         whenever(mockDeckRepository.findAll()).thenReturn(testDecks)

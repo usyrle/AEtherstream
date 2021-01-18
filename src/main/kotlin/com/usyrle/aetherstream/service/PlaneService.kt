@@ -30,22 +30,26 @@ class PlaneService(
                         .shuffled()
                         .toMutableList()
 
-            generatedPlaneList.add(0, planes.last())
-
-            return planarDeckRepository.save(PlanarDeck(generatedPlaneList))
+            return planarDeckRepository.save(PlanarDeck(
+                cards = generatedPlaneList,
+                currentCard = planes.last()))
         }
 
-        return planarDeckRepository.save(PlanarDeck(planes.take(deckSize).toMutableList()))
+        return planarDeckRepository.save(PlanarDeck(
+            cards = planes.take(deckSize - 1).toMutableList(),
+            currentCard = planes.last()))
     }
 
     fun playNextPlanarCard(deck: PlanarDeck): PlanarDeck {
-        val nextPlaneIndex = if (deck.currentIndex + 1 >= deck.cards.size) 0 else deck.currentIndex + 1
+        val nextPlane = deck.cards[0]
+        deck.cards.remove(nextPlane)
+        deck.cards.add(deck.currentCard)
 
         return planarDeckRepository.save(
                 PlanarDeck(
                         cards = deck.cards,
                         startTime = deck.startTime,
-                        currentIndex = nextPlaneIndex,
+                        currentCard = nextPlane,
                         id = deck.id
                 )
         )
