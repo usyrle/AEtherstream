@@ -29,17 +29,23 @@ class PlaneService(
             val phenomena = planarCardRepository.findAllByType(PHENOM_TYPE).shuffled()
 
             val generatedPlaneList = (planes.take(deckSize - 3) + phenomena.take(2))
-                        .shuffled()
-                        .toMutableList()
+                .shuffled()
+                .toMutableList()
 
-            return planarDeckRepository.save(PlanarDeck(
-                cards = generatedPlaneList,
-                currentCard = planes.last()))
+            return planarDeckRepository.save(
+                PlanarDeck(
+                    cards = generatedPlaneList,
+                    currentCard = planes.last()
+                )
+            )
         }
 
-        return planarDeckRepository.save(PlanarDeck(
-            cards = planes.take(deckSize - 1).toMutableList(),
-            currentCard = planes.last()))
+        return planarDeckRepository.save(
+            PlanarDeck(
+                cards = planes.take(deckSize - 1).toMutableList(),
+                currentCard = planes.last()
+            )
+        )
     }
 
     fun playNextPlanarCard(deck: PlanarDeck): PlanarDeck {
@@ -91,12 +97,12 @@ class PlaneService(
         deck.cards.add(deck.currentCard)
 
         return planarDeckRepository.save(
-                PlanarDeck(
-                        cards = deck.cards,
-                        startTime = deck.startTime,
-                        currentCard = nextPlane,
-                        id = deck.id
-                )
+            PlanarDeck(
+                cards = deck.cards,
+                startTime = deck.startTime,
+                currentCard = nextPlane,
+                id = deck.id
+            )
         )
     }
 

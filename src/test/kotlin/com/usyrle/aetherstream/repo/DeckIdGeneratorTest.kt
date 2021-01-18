@@ -1,7 +1,7 @@
 package com.usyrle.aetherstream.repo
 
-import com.nhaarman.mockitokotlin2.whenever
 import com.nhaarman.mockitokotlin2.any
+import com.nhaarman.mockitokotlin2.whenever
 import org.assertj.core.api.Assertions.assertThat
 import org.hibernate.engine.spi.SharedSessionContractImplementor
 import org.hibernate.persister.entity.EntityPersister
@@ -17,8 +17,10 @@ internal class DeckIdGeneratorTest {
 
     @Mock
     lateinit var mockSession: SharedSessionContractImplementor
+
     @Mock
     lateinit var mockEntityPersister: EntityPersister
+
     @Mock
     lateinit var mockQuery: QueryImplementor<Any>
 

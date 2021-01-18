@@ -9,5 +9,5 @@ import org.springframework.scheduling.annotation.EnableScheduling
 class AetherstreamApplication
 
 fun main(args: Array<String>) {
-	runApplication<AetherstreamApplication>(*args)
+    runApplication<AetherstreamApplication>(*args)
 }

@@ -16,9 +16,9 @@ import java.util.*
 internal class PlaneControllerTest {
 
     val testCards = mutableListOf(
-            PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
-            PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
-            PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343)
+        PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
+        PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
+        PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343)
     )
 
     val testCurrentCard = PlanarCard("Current", "plane", "https://api.scryfall.com", 99999)
@@ -40,11 +40,11 @@ internal class PlaneControllerTest {
         MockitoAnnotations.initMocks(this)
 
         whenever(mockPlaneService.generatePlanarDeck(any(), any())).thenReturn(
-                PlanarDeck(
-                        cards = testCards,
-                        currentCard = testCurrentCard,
-                        startTime = Date()
-                )
+            PlanarDeck(
+                cards = testCards,
+                currentCard = testCurrentCard,
+                startTime = Date()
+            )
         )
     }
 
@@ -65,10 +65,10 @@ internal class PlaneControllerTest {
     @Test
     fun generateNewPlanarDeck_returnsBasicInfoAboutDeck() {
         val testDeck = PlanarDeck(
-                cards = testCards,
-                startTime = Date(),
-                currentCard = testCurrentCard,
-                id = "TEST"
+            cards = testCards,
+            startTime = Date(),
+            currentCard = testCurrentCard,
+            id = "TEST"
         )
 
         whenever(mockPlaneService.generatePlanarDeck(any(), any())).thenReturn(testDeck)
@@ -84,10 +84,10 @@ internal class PlaneControllerTest {
     @Test
     fun getPlanarDeckInfo_returnsBasicInfoAboutDeck() {
         val testDeck = PlanarDeck(
-                cards = testCards,
-                startTime = Date(),
-                currentCard = testCurrentCard,
-                id = "TEST"
+            cards = testCards,
+            startTime = Date(),
+            currentCard = testCurrentCard,
+            id = "TEST"
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
@@ -131,10 +131,10 @@ internal class PlaneControllerTest {
     @Test
     fun playNextPlanarCard_returnsBasicInfoAboutDeck() {
         val testDeck = PlanarDeck(
-                cards = testCards,
-                startTime = Date(),
-                currentCard = testCurrentCard,
-                id = "TEST"
+            cards = testCards,
+            startTime = Date(),
+            currentCard = testCurrentCard,
+            id = "TEST"
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))

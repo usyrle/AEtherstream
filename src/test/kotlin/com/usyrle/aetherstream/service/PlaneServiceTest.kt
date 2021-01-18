@@ -23,38 +23,41 @@ import kotlin.test.assertFailsWith
 internal class PlaneServiceTest {
 
     val testPlanes: List<PlanarCard> = listOf(
-            PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
-            PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
-            PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343),
-            PlanarCard("Plane4", "plane", "https://api.scryfall.com", 12344),
-            PlanarCard("Plane5", "plane", "https://api.scryfall.com", 12345),
-            PlanarCard("Plane6", "plane", "https://api.scryfall.com", 12346),
-            PlanarCard("Plane7", "plane", "https://api.scryfall.com", 12347),
-            PlanarCard("Plane8", "plane", "https://api.scryfall.com", 12348),
-            PlanarCard("Plane9", "plane", "https://api.scryfall.com", 12349),
-            PlanarCard("Plane10", "plane", "https://api.scryfall.com", 123410),
-            PlanarCard("Plane11", "plane", "https://api.scryfall.com", 123411),
-            PlanarCard("Plane12", "plane", "https://api.scryfall.com", 123412),
-            PlanarCard("Plane13", "plane", "https://api.scryfall.com", 123412),
-            PlanarCard("Plane14", "plane", "https://api.scryfall.com", 123412),
-            PlanarCard("Plane15", "plane", "https://api.scryfall.com", 123412),
-            PlanarCard("Plane16", "plane", "https://api.scryfall.com", 123412)
+        PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
+        PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
+        PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343),
+        PlanarCard("Plane4", "plane", "https://api.scryfall.com", 12344),
+        PlanarCard("Plane5", "plane", "https://api.scryfall.com", 12345),
+        PlanarCard("Plane6", "plane", "https://api.scryfall.com", 12346),
+        PlanarCard("Plane7", "plane", "https://api.scryfall.com", 12347),
+        PlanarCard("Plane8", "plane", "https://api.scryfall.com", 12348),
+        PlanarCard("Plane9", "plane", "https://api.scryfall.com", 12349),
+        PlanarCard("Plane10", "plane", "https://api.scryfall.com", 123410),
+        PlanarCard("Plane11", "plane", "https://api.scryfall.com", 123411),
+        PlanarCard("Plane12", "plane", "https://api.scryfall.com", 123412),
+        PlanarCard("Plane13", "plane", "https://api.scryfall.com", 123412),
+        PlanarCard("Plane14", "plane", "https://api.scryfall.com", 123412),
+        PlanarCard("Plane15", "plane", "https://api.scryfall.com", 123412),
+        PlanarCard("Plane16", "plane", "https://api.scryfall.com", 123412)
     )
     val testPhenomena: List<PlanarCard> = listOf(
-            PlanarCard("Phenomenon1", "phenomenon", "https://api.scryfall.com", 99991),
-            PlanarCard("Phenomenon2", "phenomenon", "https://api.scryfall.com", 99992),
-            PlanarCard("Phenomenon3", "phenomenon", "https://api.scryfall.com", 99993),
-            PlanarCard("Phenomenon4", "phenomenon", "https://api.scryfall.com", 99994),
-            PlanarCard("Phenomenon5", "phenomenon", "https://api.scryfall.com", 99995),
-            PlanarCard("Phenomenon6", "phenomenon", "https://api.scryfall.com", 99996)
+        PlanarCard("Phenomenon1", "phenomenon", "https://api.scryfall.com", 99991),
+        PlanarCard("Phenomenon2", "phenomenon", "https://api.scryfall.com", 99992),
+        PlanarCard("Phenomenon3", "phenomenon", "https://api.scryfall.com", 99993),
+        PlanarCard("Phenomenon4", "phenomenon", "https://api.scryfall.com", 99994),
+        PlanarCard("Phenomenon5", "phenomenon", "https://api.scryfall.com", 99995),
+        PlanarCard("Phenomenon6", "phenomenon", "https://api.scryfall.com", 99996)
     )
 
     @Captor
     lateinit var deckCaptor: ArgumentCaptor<PlanarDeck>
+
     @Mock
     lateinit var mockCardRepository: PlanarCardRepository
+
     @Mock
     lateinit var mockDeckRepository: PlanarDeckRepository
+
     @InjectMocks
     lateinit var subject: PlaneService
 
@@ -140,7 +143,8 @@ internal class PlaneServiceTest {
             "CurrentPlane",
             "plane",
             "https://api.scryfall.com",
-            99999)
+            99999
+        )
         val testDeck = PlanarDeck(
             cards = testPlanes.toMutableList(),
             startTime = Date(),
@@ -165,7 +169,8 @@ internal class PlaneServiceTest {
             "CurrentPlane",
             "plane",
             "https://api.scryfall.com",
-            99999)
+            99999
+        )
         val testDeck = PlanarDeck(
             cards = testPlanes.toMutableList(),
             startTime = Date(),
@@ -187,7 +192,8 @@ internal class PlaneServiceTest {
             "Spatial Merging",
             "phenomenon",
             "https://scryfall.com/card/opca/7/spatial-merging",
-            423588)
+            423588
+        )
         val testDeck = PlanarDeck(
             cards = testPlanes.toMutableList(),
             startTime = Date(),
@@ -204,7 +210,8 @@ internal class PlaneServiceTest {
         assertThat(actual.spatialMergingCard).isEqualTo(testPlanes[0])
         assertThat(actual.currentCard).isEqualTo(testPlanes[1])
         assertThat(actual.cards).doesNotContainAnyElementsOf(
-            listOf(actual.currentCard, actual.spatialMergingCard))
+            listOf(actual.currentCard, actual.spatialMergingCard)
+        )
     }
 
     @Test
@@ -213,7 +220,8 @@ internal class PlaneServiceTest {
             "Spatial Merging",
             "phenomenon",
             "https://scryfall.com/card/opca/7/spatial-merging",
-            423588)
+            423588
+        )
         val testCards = mutableListOf(
             PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
             PlanarCard("Phenomenon1", "phenomenon", "https://api.scryfall.com", 99991),
@@ -239,7 +247,8 @@ internal class PlaneServiceTest {
             "Plane3",
             "Phenomenon1",
             "Phenomenon2",
-            "Spatial Merging")
+            "Spatial Merging"
+        )
     }
 
     @Test
@@ -248,12 +257,14 @@ internal class PlaneServiceTest {
             "CurrentPlane",
             "plane",
             "https://api.scryfall.com",
-            99999)
+            99999
+        )
         val testSpatialMergingPlane = PlanarCard(
             "SpatialMergingPlane",
             "plane",
             "https://api.scryfall.com",
-            88888)
+            88888
+        )
         val testDeck = PlanarDeck(
             cards = testPlanes.toMutableList(),
             startTime = Date(),
@@ -273,14 +284,14 @@ internal class PlaneServiceTest {
         )
     }
 
-        @Test
+    @Test
     fun pruneOldPlanarDecks_removeAllDecksOlderThan24Hours() {
         val testDecks = listOf(
-                PlanarDeck(mutableListOf(), Date(), testPlanes[0], null, "abcdef" ),
-                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), testPlanes[0], null, "ghijkl"),
-                PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), testPlanes[0], null, "mnopqr"),
-                PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), testPlanes[0], null, "stuvwx"),
-                PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), testPlanes[0], null, "yabbaz")
+            PlanarDeck(mutableListOf(), Date(), testPlanes[0], null, "abcdef"),
+            PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), testPlanes[0], null, "ghijkl"),
+            PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), testPlanes[0], null, "mnopqr"),
+            PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), testPlanes[0], null, "stuvwx"),
+            PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), testPlanes[0], null, "yabbaz")
         )
 
         whenever(mockDeckRepository.findAll()).thenReturn(testDecks)
