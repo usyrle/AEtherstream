@@ -204,7 +204,6 @@ internal class PlaneServiceTest {
         subject.playNextPlanarCard(testDeck)
 
         verify(mockDeckRepository).save(deckCaptor.capture())
-
         val actual = deckCaptor.value
 
         assertThat(actual.spatialMergingCard).isEqualTo(testPlanes[0])
@@ -285,13 +284,128 @@ internal class PlaneServiceTest {
     }
 
     @Test
+    fun playNextPlanarCard_interplanarTunnel_populatesFirstFivePlanesToChooseFrom() {
+        val interplanarTunnel = PlanarCard(
+            "Interplanar Tunnel",
+            "phenomenon",
+            "https://scryfall.com/card/opca/2/interplanar-tunnel",
+            423583
+        )
+        val testDeck = PlanarDeck(
+            cards = mutableListOf(
+                PlanarCard("Plane1", "plane", "https://api.scryfall.com", 12341),
+                PlanarCard("Plane2", "plane", "https://api.scryfall.com", 12342),
+                PlanarCard("Phenomenon1", "phenomenon", "https://api.scryfall.com", 99991),
+                PlanarCard("Plane3", "plane", "https://api.scryfall.com", 12343),
+                PlanarCard("Phenomenon2", "phenomenon", "https://api.scryfall.com", 99992),
+                PlanarCard("Phenomenon3", "phenomenon", "https://api.scryfall.com", 99993),
+                PlanarCard("Plane4", "plane", "https://api.scryfall.com", 12344),
+                PlanarCard("Plane5", "plane", "https://api.scryfall.com", 12345),
+                PlanarCard("Phenomenon4", "phenomenon", "https://api.scryfall.com", 99994),
+                PlanarCard("Plane6", "plane", "https://api.scryfall.com", 12346),
+                PlanarCard("Phenomenon5", "phenomenon", "https://api.scryfall.com", 99995)
+            ),
+            startTime = Date(),
+            currentCard = interplanarTunnel,
+            id = "TEST"
+        )
+
+        subject.playNextPlanarCard(testDeck)
+
+        verify(mockDeckRepository).save(deckCaptor.capture())
+        val actual = deckCaptor.value
+
+        assertThat(actual.currentCard).isEqualTo(interplanarTunnel)
+        assertThat(actual.interplanarCards).filteredOn("type", "plane").hasSize(5)
+        assertThat(actual.interplanarCards).extracting("name").doesNotContain(
+            "Phenomenon4",
+            "Plane6",
+            "Phenomenon5"
+        )
+    }
+
+    @Test
+    fun playNextPlanarCard_interplanarTunnel_setsCurrentPlaneToChosenCard() {
+        val interplanarTunnel = PlanarCard(
+            "Interplanar Tunnel",
+            "phenomenon",
+            "https://scryfall.com/card/opca/2/interplanar-tunnel",
+            423583
+        )
+        val testDeck = PlanarDeck(
+            cards = testPlanes.toMutableList(),
+            startTime = Date(),
+            currentCard = interplanarTunnel,
+            interplanarCards = testPlanes.subList(0, 5).toMutableList(),
+            id = "TEST"
+        )
+
+        whenever(mockCardRepository.findById(testPlanes[2].multiverseId!!)).thenReturn(Optional.of(testPlanes[2]))
+
+        subject.playNextPlanarCard(testDeck, testPlanes[2].multiverseId)
+
+        verify(mockDeckRepository).save(deckCaptor.capture())
+        val actual = deckCaptor.value
+
+        assertThat(actual.currentCard).isEqualTo(testPlanes[2])
+    }
+
+    @Test
+    fun playNextPlanarCard_interplanarTunnel_putsUnchosenCardsOnBottomOfDeckRandomly() {
+        val interplanarTunnel = PlanarCard(
+            "Interplanar Tunnel",
+            "phenomenon",
+            "https://scryfall.com/card/opca/2/interplanar-tunnel",
+            423583
+        )
+        val testDeck = PlanarDeck(
+            cards = testPlanes.subList(6, 10).toMutableList(),
+            startTime = Date(),
+            currentCard = interplanarTunnel,
+            interplanarCards = testPlanes.subList(0, 5).toMutableList(),
+            id = "TEST"
+        )
+
+        whenever(mockCardRepository.findById(testPlanes[2].multiverseId!!)).thenReturn(Optional.of(testPlanes[2]))
+
+        subject.playNextPlanarCard(testDeck, testPlanes[2].multiverseId)
+
+        verify(mockDeckRepository).save(deckCaptor.capture())
+        val actual = deckCaptor.value
+
+        assertThat(actual.cards.last()).isEqualTo(interplanarTunnel)
+        assertThat(actual.cards.subList(actual.cards.size - 6, actual.cards.size - 1))
+            .containsExactlyInAnyOrderElementsOf(testPlanes.subList(0, 5))
+    }
+
+    @Test
     fun pruneOldPlanarDecks_removeAllDecksOlderThan24Hours() {
         val testDecks = listOf(
-            PlanarDeck(mutableListOf(), Date(), testPlanes[0], null, "abcdef"),
-            PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -4), testPlanes[0], null, "ghijkl"),
-            PlanarDeck(mutableListOf(), DateUtils.addHours(Date(), -50), testPlanes[0], null, "mnopqr"),
-            PlanarDeck(mutableListOf(), DateUtils.addDays(Date(), -10), testPlanes[0], null, "stuvwx"),
-            PlanarDeck(mutableListOf(), DateUtils.addMonths(Date(), -1), testPlanes[0], null, "yabbaz")
+            PlanarDeck(cards = mutableListOf(), startTime = Date(), currentCard = testPlanes[0], id = "abcdef"),
+            PlanarDeck(
+                cards = mutableListOf(),
+                startTime = DateUtils.addHours(Date(), -4),
+                currentCard = testPlanes[0],
+                id = "ghijkl"
+            ),
+            PlanarDeck(
+                cards = mutableListOf(),
+                startTime = DateUtils.addHours(Date(), -50),
+                currentCard = testPlanes[0],
+                id = "mnopqr"
+            ),
+            PlanarDeck(
+                cards = mutableListOf(),
+                startTime = DateUtils.addDays(Date(), -10),
+                currentCard = testPlanes[0],
+                id = "stuvwx"
+            ),
+            PlanarDeck(
+                cards = mutableListOf(),
+                startTime = DateUtils.addMonths(Date(), -1),
+                currentCard = testPlanes[0],
+                id = "yabbaz"
+            )
         )
 
         whenever(mockDeckRepository.findAll()).thenReturn(testDecks)

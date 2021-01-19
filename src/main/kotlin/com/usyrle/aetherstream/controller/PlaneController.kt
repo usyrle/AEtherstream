@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*
 @CrossOrigin
 @RestController
 @RequestMapping("/deck")
-class PlaneController(private val service: PlaneService, private val repo: PlanarDeckRepository) {
+class PlaneController(private val service: PlaneService, private val planarDeckRepo: PlanarDeckRepository) {
 
     @PostMapping(path = ["/generate"], consumes = ["application/json"])
     fun generateNewPlanarDeck(
@@ -28,7 +28,7 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
     fun getPlanarDeckInfo(
         @PathVariable deckId: String
     ): PlanarDeckInfo? {
-        val result = repo.findById(deckId)
+        val result = planarDeckRepo.findById(deckId)
 
         if (result.isPresent) {
             val requestedDeck = result.get()
@@ -36,6 +36,7 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
                 deckSize = requestedDeck.cards.size + 1,
                 currentPlane = requestedDeck.currentCard,
                 spatialMergingPlane = requestedDeck.spatialMergingCard,
+                interplanarPlanes = requestedDeck.interplanarCards,
                 startTime = requestedDeck.startTime.toInstant().epochSecond,
                 id = requestedDeck.id ?: "00000000"
             )
@@ -45,21 +46,23 @@ class PlaneController(private val service: PlaneService, private val repo: Plana
 
     @PostMapping("/{deckId}/next")
     fun playNextPlanarCard(
-        @PathVariable deckId: String
+        @PathVariable deckId: String,
+        @RequestParam(required = false) selectedCardId: Long? = null
     ): PlanarDeckInfo? {
-        val result = repo.findById(deckId)
+        val result = planarDeckRepo.findById(deckId)
 
         if (result.isEmpty) {
             return null
         }
 
         val deck = result.get()
-        val updatedDeck = service.playNextPlanarCard(deck);
+        val updatedDeck = service.playNextPlanarCard(deck, selectedCardId)
 
         return PlanarDeckInfo(
             deckSize = updatedDeck.cards.size + 1,
             currentPlane = updatedDeck.currentCard,
             spatialMergingPlane = updatedDeck.spatialMergingCard,
+            interplanarPlanes = updatedDeck.interplanarCards,
             startTime = updatedDeck.startTime.toInstant().epochSecond,
             id = updatedDeck.id ?: "00000000"
         )

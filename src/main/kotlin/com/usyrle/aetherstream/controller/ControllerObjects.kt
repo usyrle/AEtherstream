@@ -13,6 +13,7 @@ data class PlanarDeckInfo(
     var deckSize: Int,
     var currentPlane: PlanarCard,
     var spatialMergingPlane: PlanarCard? = null,
+    var interplanarPlanes: List<PlanarCard>? = null,
     var startTime: Long,
     var id: String
 )

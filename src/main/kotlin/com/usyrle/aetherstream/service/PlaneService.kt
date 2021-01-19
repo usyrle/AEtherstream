@@ -13,6 +13,7 @@ const val PHENOM_TYPE = "phenomenon"
 
 const val MILLISECONDS_IN_24H = 86400000
 const val SPATIAL_MERGING_ID: Long = 423588
+const val INTERPLANAR_TUNNEL_ID: Long = 423583
 
 @Service
 class PlaneService(
@@ -48,33 +49,11 @@ class PlaneService(
         )
     }
 
-    fun playNextPlanarCard(deck: PlanarDeck): PlanarDeck {
-        // handle Spatial Merging phenomenon
+    fun playNextPlanarCard(deck: PlanarDeck, chosenInterplanarCardId: Long? = null): PlanarDeck {
         if (deck.currentCard.multiverseId == SPATIAL_MERGING_ID) {
-            var spatialMergingPlane: PlanarCard? = null
-            var nextPlane: PlanarCard? = null
-
-            while (spatialMergingPlane == null) {
-                val tempPlane = deck.cards[0]
-                if (tempPlane.type != "plane") {
-                    deck.cards.remove(tempPlane)
-                    deck.cards.add(tempPlane)
-                } else {
-                    spatialMergingPlane = tempPlane
-                    deck.cards.remove(tempPlane)
-                }
-            }
-
-            while (nextPlane == null) {
-                val tempPlane = deck.cards[0]
-                if (tempPlane.type != "plane") {
-                    deck.cards.remove(tempPlane)
-                    deck.cards.add(tempPlane)
-                } else {
-                    nextPlane = tempPlane
-                    deck.cards.remove(tempPlane)
-                }
-            }
+            // handle Spatial Merging phenomenon
+            val spatialMergingPlane = dealToNextPlane(deck)
+            val nextPlane = dealToNextPlane(deck)
 
             deck.cards.add(deck.currentCard)
 
@@ -87,7 +66,46 @@ class PlaneService(
                     id = deck.id
                 )
             )
+        } else if (deck.currentCard.multiverseId == INTERPLANAR_TUNNEL_ID) {
+            // handle Interplanar Tunnel phenomenon
+            if (chosenInterplanarCardId != null) {
+                val chosenCard = planarCardRepository.findById(chosenInterplanarCardId)
+                deck.cards.remove(chosenCard.get())
+
+                deck.cards = (deck.cards + (deck.interplanarCards!!.shuffled())).toMutableList()
+                deck.cards.add(deck.currentCard)
+
+                return planarDeckRepository.save(
+                    PlanarDeck(
+                        cards = deck.cards,
+                        startTime = deck.startTime,
+                        currentCard = chosenCard.get(),
+                        id = deck.id
+                    )
+                )
+            }
+
+            val interplanarChoices = mutableListOf<PlanarCard>()
+            var planeCount = 0
+
+            while (planeCount < 5) {
+                val nextCard = deck.cards[0]
+                interplanarChoices.add(nextCard)
+                deck.cards.remove(nextCard)
+                if (nextCard.type == "plane") planeCount++
+            }
+
+            return planarDeckRepository.save(
+                PlanarDeck(
+                    cards = deck.cards,
+                    startTime = deck.startTime,
+                    interplanarCards = interplanarChoices,
+                    currentCard = deck.currentCard,
+                    id = deck.id
+                )
+            )
         }
+
         if (deck.spatialMergingCard != null) {
             deck.cards.add(deck.spatialMergingCard!!)
         }
@@ -104,6 +122,23 @@ class PlaneService(
                 id = deck.id
             )
         )
+    }
+
+    private fun dealToNextPlane(deck: PlanarDeck): PlanarCard {
+        var nextPlane: PlanarCard? = null
+
+        while (nextPlane == null) {
+            val tempPlane = deck.cards[0]
+            if (tempPlane.type != "plane") {
+                deck.cards.remove(tempPlane)
+                deck.cards.add(tempPlane)
+            } else {
+                nextPlane = tempPlane
+                deck.cards.remove(tempPlane)
+            }
+        }
+
+        return nextPlane
     }
 
     @Scheduled(cron = "\${deck.prune.schedule}")

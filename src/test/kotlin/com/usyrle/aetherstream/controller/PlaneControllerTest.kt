@@ -120,12 +120,29 @@ internal class PlaneControllerTest {
         )
 
         whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
-        whenever(mockPlaneService.playNextPlanarCard(testDeck)).thenReturn(testDeck)
 
         val actual = subject.getPlanarDeckInfo("TEST")
 
         assertThat(actual!!.currentPlane).isEqualTo(testCurrentCard)
         assertThat(actual.spatialMergingPlane).isEqualTo(testCards[0])
+    }
+
+    @Test
+    fun getPlanarDeckInfo_includesInterplanarTunnelPlanesIfAny() {
+        val testDeck = PlanarDeck(
+            cards = testCards,
+            startTime = Date(),
+            currentCard = testCurrentCard,
+            interplanarCards = testCards.subList(0, 1),
+            id = "TEST"
+        )
+
+        whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
+
+        val actual = subject.getPlanarDeckInfo("TEST")
+
+        assertThat(actual!!.currentPlane).isEqualTo(testCurrentCard)
+        assertThat(actual.interplanarPlanes).isEqualTo(testDeck.interplanarCards)
     }
 
     @Test
@@ -174,5 +191,42 @@ internal class PlaneControllerTest {
 
         assertThat(actual!!.currentPlane).isEqualTo(testCurrentCard)
         assertThat(actual.spatialMergingPlane).isEqualTo(testCards[0])
+    }
+
+    @Test
+    fun playNextPlanarCard_passesRequestedPlaneToService() {
+        val testDeck = PlanarDeck(
+            cards = testCards,
+            startTime = Date(),
+            currentCard = testCurrentCard,
+            interplanarCards = testCards.subList(0, 1),
+            id = "TEST"
+        )
+
+        whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
+        whenever(mockPlaneService.playNextPlanarCard(any(), any())).thenReturn(testDeck)
+
+        subject.playNextPlanarCard("TEST", testCards.last().multiverseId)
+
+        verify(mockPlaneService).playNextPlanarCard(testDeck, testCards.last().multiverseId)
+    }
+
+    @Test
+    fun playNextPlanarCard_includesInterplanarTunnelPlanesIfAny() {
+        val testDeck = PlanarDeck(
+            cards = testCards,
+            startTime = Date(),
+            currentCard = testCurrentCard,
+            interplanarCards = testCards.subList(0, 1),
+            id = "TEST"
+        )
+
+        whenever(mockRepository.findById("TEST")).thenReturn(Optional.of(testDeck))
+        whenever(mockPlaneService.playNextPlanarCard(testDeck)).thenReturn(testDeck)
+
+        val actual = subject.playNextPlanarCard("TEST")
+
+        assertThat(actual!!.currentPlane).isEqualTo(testCurrentCard)
+        assertThat(actual.interplanarPlanes).isEqualTo(testDeck.interplanarCards)
     }
 }
